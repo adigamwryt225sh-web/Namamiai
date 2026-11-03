@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpamGuard Pro - Email Security Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <img src="cu.jpg" alt="CU Logo" class="brand-logo">
+                <h2><strong>SpamGuard</strong> Pro</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-target="view-inbox">
+                    <i class="fa-solid fa-inbox"></i> Inbox <span id="badge-inbox" class="badge">0</span>
+                </button>
+                <button class="nav-item" data-target="view-spam">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Spam Folder <span id="badge-spam" class="badge spam-badge">0</span>
+                </button>
+                <button class="nav-item" data-target="view-checker">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Spam Email Check
+                </button>
+                <button class="nav-item" data-target="view-logs">
+                    <i class="fa-solid fa-bolt"></i> Trigger Logs & Stats
+                </button>
+                <button class="nav-item" data-target="view-about">
+                    <i class="fa-solid fa-circle-info"></i> Project Details
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>CSE College Project</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="menu-toggle" class="icon-btn" title="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
+                    <h1 id="page-title">Inbox</h1>
+                </div>
+                
+                <div class="topbar-right">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search emails...">
+                    </div>
+                    <div class="user-profile">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Admin Security</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW 1: INBOX -->
+            <section id="view-inbox" class="view-section active">
+                <div class="view-header">
+                    <h3>All Scanned Emails</h3>
+                    <p>Live stream of incoming mail. Click any email to view details, or hover to delete.</p>
+                </div>
+                <div class="email-list-container">
+                    <div id="inbox-list" class="email-table">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: SPAM FOLDER (QUARANTINE) -->
+            <section id="view-spam" class="view-section">
+                <div class="view-header">
+                    <h3>Quarantined Spam Folder</h3>
+                    <p>Emails automatically filtered and intercepted by the trigger system.</p>
+                </div>
+                <div class="email-list-container">
+                    <div id="spam-folder-list" class="email-table">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: SPAM EMAIL CHECKER & SIMULATOR -->
+            <section id="view-checker" class="view-section">
+                <div class="view-header">
+                    <h3>Spam Email Analysis Tool</h3>
+                    <p>Paste custom mail text or run bulk simulations to test detection accuracy and triggers.</p>
+                </div>
+                
+                <div class="checker-grid">
+                    <div class="panel white-panel">
+                        <h4>Manual Email Tester</h4>
+                        <textarea id="email-input" placeholder="Type or paste email content here..."></textarea>
+                        <div class="button-group">
+                            <button id="analyze-btn" class="btn primary"><i class="fa-solid fa-check"></i> Analyze & Trigger</button>
+                            <button id="simulate-btn" class="btn secondary"><i class="fa-solid fa-shuffle"></i> Simulate 1 Mail</button>
+                        </div>
+                    </div>
+
+                    <div class="panel white-panel">
+                        <h4>Automated Bulk Simulation</h4>
+                        <p>Instantly flood the system with a random mix of safe and spam messages.</p>
+                        <div class="bulk-input-group">
+                            <input type="number" id="bulk-amount" min="1" max="100" value="10" placeholder="Count (1-100)">
+                            <button id="batch-btn" class="btn bulk"><i class="fa-solid fa-bolt-lightning"></i> Run Simulation</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: LOGS & STATS -->
+            <section id="view-logs" class="view-section">
+                <div class="view-header">
+                    <h3>System Trigger Logs & Metrics</h3>
+                    <p>Lifetime analytics and automated defense trigger counters.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box white-box">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div>
+                            <h4>Total Scanned</h4>
+                            <p id="total-count">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-box white-box spam-box-stat">
+                        <i class="fa-solid fa-ban"></i>
+                        <div>
+                            <h4>Spam Caught</h4>
+                            <p id="spam-count">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-box white-box">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <h4>Safe Mails</h4>
+                            <p id="safe-count">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-box white-box trigger-box-stat">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div>
+                            <h4>Triggers Fired</h4>
+                            <p id="trigger-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel white-panel logs-panel">
+                    <h4>Activity Log History</h4>
+                    <ul id="log-list">
+                        <!-- Populated via JS -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- VIEW 5: PROJECT DETAILS / CREDITS -->
+            <section id="view-about" class="view-section">
+                <div class="panel white-panel about-panel">
+                    <h2><i class="fa-solid fa-graduation-cap"></i> College Project Information</h2>
+                    <p class="project-desc">A real-time email scanning, spam classification, and automated trigger response system built for Chandigarh University academic evaluation.</p>
+                    
+                    <div class="credits-box">
+                        <h3>Developed By:</h3>
+                        <ul class="credits-list">
+                            <li>
+                                <i class="fa-solid fa-user-graduate"></i> 
+                                <div class="student-info">
+                                    <strong>Namami Shukla</strong>
+                                    <span class="uid-tag">UID 26BCS10771</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-user-graduate"></i> 
+                                <div class="student-info">
+                                    <strong>Aditya Kumar</strong>
+                                    <span class="uid-tag">UID 26BCS10823</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-user-graduate"></i> 
+                                <div class="student-info">
+                                    <strong>Abhinav Sherawat</strong>
+                                    <span class="uid-tag">UID 26BCS10820</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Email Reader Modal / Popup -->
+    <div id="email-modal" class="modal-overlay">
+        <div class="modal-box white-panel">
+            <div class="modal-header">
+                <h3 id="modal-subject">Email Subject</h3>
+                <button id="close-modal-x" class="close-x-btn">&times;</button>
+            </div>
+            <div class="modal-sender-info">
+                <div class="sender-avatar"><i class="fa-solid fa-circle-user"></i></div>
+                <div class="sender-details">
+                    <p><strong id="modal-sender-name">Sender Name</strong> <span id="modal-sender-email" class="email-tag">&lt;email@domain.com&gt;</span></p>
+                    <p class="modal-time" id="modal-time">Timestamp</p>
+                </div>
+            </div>
+            <div class="modal-body-content">
+                <p id="modal-body-text">Full email message body goes here...</p>
+            </div>
+            <div class="modal-footer">
+                <span id="modal-status-badge" class="email-status">Status</span>
+                <button id="close-modal-btn" class="btn primary">Back to List</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
