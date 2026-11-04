@@ -32,11 +32,119 @@ navItems.forEach(item => {
     });
 });
 
-// Unique ID generator for safe deletion
+// --- KIRA A.I. CHAT LOGIC ---
+const kiraBot = document.getElementById("kira-bot");
+const kiraMenu = document.getElementById("kira-menu");
+const closeKira = document.getElementById("close-kira");
+const kiraChatArea = document.getElementById("kira-chat-area");
+const kiraSearchInput = document.getElementById("kira-search-input");
+const kiraSimCount = document.getElementById("kira-sim-count");
+let kiraHasGreeted = false;
+
+// Open Kira / Auto Greet
+function openKira() {
+    kiraMenu.classList.remove("hidden");
+    if (!kiraHasGreeted) {
+        kiraHasGreeted = true;
+        typeKiraMessage("> I am KIRA. I am watching the network... How shall we dispense justice to these emails today?");
+    }
+}
+
+kiraBot.addEventListener("click", () => {
+    if (kiraMenu.classList.contains("hidden")) {
+        openKira();
+    } else {
+        kiraMenu.classList.add("hidden");
+    }
+});
+
+closeKira.addEventListener("click", () => kiraMenu.classList.add("hidden"));
+
+// Auto-open Kira 1.5 seconds after page loads
+setTimeout(() => { openKira(); }, 1500);
+
+// Typewriter Effect Function
+function typeKiraMessage(text, isUser = false) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `kira-msg ${isUser ? 'user-msg' : ''}`;
+    kiraChatArea.appendChild(msgDiv);
+    
+    if (isUser) {
+        msgDiv.textContent = text;
+        kiraChatArea.scrollTop = kiraChatArea.scrollHeight;
+        return;
+    }
+
+    let i = 0;
+    function typeWriter() {
+        if (i < text.length) {
+            msgDiv.textContent += text.charAt(i);
+            i++;
+            kiraChatArea.scrollTop = kiraChatArea.scrollHeight;
+            setTimeout(typeWriter, 25); // typing speed
+        }
+    }
+    typeWriter();
+}
+
+// Chat Button Interactions
+document.querySelectorAll(".kira-chat-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const action = e.target.getAttribute("data-action");
+        
+        if (action === "who") {
+            typeKiraMessage("Who built this?", true);
+            setTimeout(() => {
+                typeKiraMessage("> This system was engineered by three individuals: Namami Shukla, Aditya Kumar, and Abhinav Sherawat from Chandigarh University.");
+            }, 500);
+        } 
+        else if (action === "purpose") {
+            typeKiraMessage("What is the purpose?", true);
+            setTimeout(() => {
+                typeKiraMessage("> To construct an impenetrable firewall. It identifies, counts, and eradicates spam emails in real-time using keyword triggers.");
+            }, 500);
+        }
+        else if (action === "simulate") {
+            let amount = parseInt(kiraSimCount.value);
+            if (isNaN(amount) || amount < 1) amount = 1;
+            if (amount > 100) amount = 100;
+            
+            typeKiraMessage(`Simulate ${amount} mails.`, true);
+            setTimeout(() => {
+                typeKiraMessage(`> Initiating judgment protocol on ${amount} incoming messages... Switch to Inbox to observe.`);
+                runBulkSimulation(amount);
+                document.querySelector('[data-target="view-inbox"]').click();
+            }, 500);
+        }
+        else if (action === "delete") {
+            typeKiraMessage("Delete all spam.", true);
+            setTimeout(() => {
+                if (spamFolderEmails.length === 0) {
+                    typeKiraMessage("> The quarantine is already empty.");
+                } else {
+                    spamFolderEmails = [];
+                    addLog("🗑️ KIRA PROTOCOL: Entire spam quarantine erased permanently.");
+                    updateUI();
+                    typeKiraMessage("> All flagged spam has been permanently eradicated.");
+                }
+            }, 500);
+        }
+    });
+});
+
+// Kira Global Search functionality
+kiraSearchInput.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    document.querySelector('[data-target="view-inbox"]').click();
+    renderInbox(searchTerm);
+    renderSpamFolder(searchTerm);
+});
+
+// --- CORE SYSTEM LOGIC ---
 let emailIdCounter = 0;
 function generateId() { return `mail_${++emailIdCounter}`; }
 
-// Master sample email pool
+// 100% Random Master Pool
 const sampleEmails = [
     { senderName: "Global Prize Hub", senderEmail: "claim@lottery-winner-corp.net", subject: "Lottery Reward", text: "Congratulations! You won a free lottery prize of $10,000. Click here to claim.", fullBody: "You have won a massive cash reward in our lucky draw. Click the link to claim your funds immediately." },
     { senderName: "Prof. R. K. Sharma", senderEmail: "rk.sharma@cumail.in", subject: "Lab Submission", text: "Hi team, please find attached the meeting notes for our project sync tomorrow.", fullBody: "Dear students, please note the updated lab evaluation criteria posted on the department portal." },
@@ -52,12 +160,11 @@ const sampleEmails = [
 
 const spamKeywords = ["free", "win", "winner", "prize", "lottery", "cash", "urgent", "click here", "subscribe", "money", "offer", "bonus", "verify"];
 
-// App State (Lifetime Stats & Current Arrays)
+// State
 let totalScanned = 0;
 let lifetimeSpamCaught = 0;
 let lifetimeSafeMails = 0;
 let triggerCount = 0;
-
 let inboxEmails = [];
 let spamFolderEmails = [];
 
@@ -66,76 +173,58 @@ const totalCountEl = document.getElementById("total-count");
 const spamCountEl = document.getElementById("spam-count");
 const safeCountEl = document.getElementById("safe-count");
 const triggerCountEl = document.getElementById("trigger-count");
-
 const badgeInbox = document.getElementById("badge-inbox");
 const badgeSpam = document.getElementById("badge-spam");
-
 const emailInput = document.getElementById("email-input");
-const searchInput = document.getElementById("search-input");
 const bulkAmountInput = document.getElementById("bulk-amount");
 const analyzeBtn = document.getElementById("analyze-btn");
 const simulateBtn = document.getElementById("simulate-btn");
 const batchBtn = document.getElementById("batch-btn");
-
 const inboxList = document.getElementById("inbox-list");
 const spamFolderList = document.getElementById("spam-folder-list");
 const logList = document.getElementById("log-list");
 
-// Pre-Populate 5 random emails on initial page load
+// Initialize Data
 function populateInitialMails() {
     for(let i=0; i<5; i++) {
-        // Pick a completely random mail from the pool
         const randMail = sampleEmails[Math.floor(Math.random() * sampleEmails.length)];
-        processEmail(randMail, true); // true = silent, no logs printed for initial batch
+        processEmail(randMail, true);
     }
     addLog("System initialized. Inbox pre-populated with active emails.");
     updateUI();
 }
-
-// Run immediately on script load
 populateInitialMails();
 
-// Global Search Event Listener
-searchInput.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    renderInbox(searchTerm);
-    renderSpamFolder(searchTerm);
-});
-
-// Event Listeners for Buttons
+// Manual Dashboard Actions
 analyzeBtn.addEventListener("click", () => {
     const text = emailInput.value.trim();
-    if (!text) return alert("Please enter or paste email text first!");
+    if (!text) return alert("Please enter email text!");
     processEmail({ senderName: "Custom User", senderEmail: "tester@external.net", subject: "Custom Analyzed Email", text: text, fullBody: text });
     emailInput.value = "";
 });
 
 simulateBtn.addEventListener("click", () => {
-    // 100% Random Pick
-    const rand = sampleEmails[Math.floor(Math.random() * sampleEmails.length)];
-    processEmail(rand);
+    processEmail(sampleEmails[Math.floor(Math.random() * sampleEmails.length)]);
 });
 
 batchBtn.addEventListener("click", () => {
-    // Get user defined amount
     let amount = parseInt(bulkAmountInput.value);
-    
-    // Validate bounds
     if (isNaN(amount) || amount < 1) amount = 1;
     if (amount > 100) amount = 100;
-    
-    bulkAmountInput.value = amount; // Reset UI to actual processed number
+    bulkAmountInput.value = amount; 
+    runBulkSimulation(amount);
+});
 
-    // Loop exactly 'amount' times, picking a totally random email each time
+function runBulkSimulation(amount) {
     for (let i = 0; i < amount; i++) {
         setTimeout(() => {
             const randEmailObj = sampleEmails[Math.floor(Math.random() * sampleEmails.length)];
             processEmail(randEmailObj);
-        }, i * 80); // Stagger by 80ms to create a cool waterfall loading effect
+        }, i * 80); 
     }
-});
+}
 
-// Core Logic: Process New Email
+// Process Email Core
 function processEmail(mailData, isSilentInit = false) {
     totalScanned++;
     const lowerText = mailData.text.toLowerCase();
@@ -164,22 +253,19 @@ function processEmail(mailData, isSilentInit = false) {
         if (!isSilentInit) addLog(`✅ Verified safe email received from ${emailObj.senderName}`);
     }
     
-    // Only update UI fully if it's not a silent initial load
     if(!isSilentInit) updateUI();
 }
 
-// Logic: Delete Email
+// Delete Logic
 window.deleteEmail = function(event, id) {
-    event.stopPropagation(); // Prevents modal from opening when clicking delete
-    
+    event.stopPropagation(); 
     inboxEmails = inboxEmails.filter(mail => mail.id !== id);
     spamFolderEmails = spamFolderEmails.filter(mail => mail.id !== id);
-    
-    addLog(`🗑️ System: An email was permanently deleted by admin.`);
+    addLog(`🗑️ System: An email was permanently deleted.`);
     updateUI();
 };
 
-// UI Render Updates
+// UI Rendering
 function updateUI() {
     totalCountEl.textContent = totalScanned;
     spamCountEl.textContent = lifetimeSpamCaught;
@@ -189,19 +275,17 @@ function updateUI() {
     badgeInbox.textContent = inboxEmails.length;
     badgeSpam.textContent = spamFolderEmails.length;
     
-    const searchTerm = searchInput.value.toLowerCase();
+    const searchTerm = kiraSearchInput.value.toLowerCase();
     renderInbox(searchTerm);
     renderSpamFolder(searchTerm);
 }
 
 function renderInbox(filterTerm = "") {
     const filtered = inboxEmails.filter(m => m.senderName.toLowerCase().includes(filterTerm) || m.text.toLowerCase().includes(filterTerm));
-    
     if (filtered.length === 0) {
         inboxList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-folder-open"></i><p>No emails found.</p></div>`;
         return;
     }
-
     inboxList.innerHTML = filtered.map(mail => `
         <div class="email-row" onclick="openEmailModal('${mail.id}')">
             <span class="email-sender-preview">${mail.senderName}</span>
@@ -216,12 +300,10 @@ function renderInbox(filterTerm = "") {
 
 function renderSpamFolder(filterTerm = "") {
     const filtered = spamFolderEmails.filter(m => m.senderName.toLowerCase().includes(filterTerm) || m.text.toLowerCase().includes(filterTerm));
-    
     if (filtered.length === 0) {
         spamFolderList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-shield-check"></i><p>No spam emails match.</p></div>`;
         return;
     }
-
     spamFolderList.innerHTML = filtered.map(mail => `
         <div class="email-row" onclick="openEmailModal('${mail.id}')">
             <span class="email-sender-preview">${mail.senderName}</span>
@@ -234,7 +316,7 @@ function renderSpamFolder(filterTerm = "") {
     `).join('');
 }
 
-// Modal Elements & Logic
+// Modal System
 const emailModal = document.getElementById("email-modal");
 const modalSubject = document.getElementById("modal-subject");
 const modalSenderName = document.getElementById("modal-sender-name");
