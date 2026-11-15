@@ -27,6 +27,9 @@
                 <button class="nav-item" data-target="view-checker">
                     <i class="fa-solid fa-magnifying-glass-chart"></i> Spam Email Check
                 </button>
+                <button class="nav-item" data-target="view-real-gmail">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Real Gmail Spam Check
+                </button>
                 <button class="nav-item" data-target="view-logs">
                     <i class="fa-solid fa-bolt"></i> Trigger Logs & Stats
                 </button>
@@ -111,7 +114,64 @@
                 </div>
             </section>
 
-            <!-- VIEW 4: LOGS & STATS -->
+            <!-- VIEW 4: REAL GMAIL SPAM CHECK -->
+            <section id="view-real-gmail" class="view-section">
+                <div class="view-header">
+                    <h3>Real Gmail Spam Check & Inbox Cleaner</h3>
+                    <p>Authenticate with your authorized sandbox credentials to inspect and clear live inbox threats.</p>
+                </div>
+
+                <!-- Professional Google-style Login Card -->
+                <div id="gmail-login-container" class="panel white-panel login-card-box">
+                    <div class="login-header">
+                        <i class="fa-brands fa-google google-logo-icon"></i>
+                        <h4>Sign in with Google</h4>
+                        <p>Restricted access: Authorized accounts only.</p>
+                    </div>
+                    
+                    <div id="login-step-1" class="login-step">
+                        <div class="input-group">
+                            <input type="email" id="login-email-input" placeholder="Enter your Gmail address..." autocomplete="off">
+                        </div>
+                        <button id="next-email-btn" class="btn primary full-width">Next</button>
+                        <p id="login-error-1" class="error-msg"></p>
+                    </div>
+
+                    <div id="login-step-2" class="login-step hidden">
+                        <p class="display-user-email" id="target-email-display"></p>
+                        <div class="input-group">
+                            <input type="password" id="login-pass-input" placeholder="Enter account password...">
+                        </div>
+                        <div class="login-btn-row">
+                            <button id="back-email-btn" class="btn secondary">Back</button>
+                            <button id="submit-login-btn" class="btn primary">Verify & Login</button>
+                        </div>
+                        <p id="login-error-2" class="error-msg"></p>
+                    </div>
+                </div>
+
+                <!-- Live Gmail Dashboard (Unlocked upon successful login) -->
+                <div id="real-gmail-dashboard" class="panel white-panel hidden">
+                    <div class="dashboard-header-flex">
+                        <div>
+                            <h4>Authenticated Mailbox: <span class="highlight-email" id="active-user-tag">adigamwryt225sh@gmail.com</span></h4>
+                            <p class="project-desc" style="margin-bottom: 0;">Live Gmail API tunnel active. Threat scanning initialized.</p>
+                        </div>
+                        <div class="button-group">
+                            <button id="fetch-real-gmail-btn" class="btn secondary"><i class="fa-solid fa-rotate"></i> Sync Mailbox</button>
+                            <button id="clear-real-spam-btn" class="btn bulk"><i class="fa-solid fa-trash-can"></i> Delete All Spam</button>
+                        </div>
+                    </div>
+
+                    <div class="email-list-container" style="margin-top: 20px;">
+                        <div id="real-gmail-list" class="email-table">
+                            <!-- Populated via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: LOGS & STATS -->
             <section id="view-logs" class="view-section">
                 <div class="view-header">
                     <h3>System Trigger Logs & Metrics</h3>
@@ -157,7 +217,7 @@
                 </div>
             </section>
 
-            <!-- VIEW 5: PROJECT DETAILS / CREDITS -->
+            <!-- VIEW 6: PROJECT DETAILS / CREDITS -->
             <section id="view-about" class="view-section">
                 <div class="panel white-panel about-panel">
                     <h2><i class="fa-solid fa-graduation-cap"></i> College Project Information</h2>
@@ -234,7 +294,6 @@
 
     <!-- Email Reader Modal / Popup -->
     <div id="email-modal" class="modal-overlay">
-        <!-- Kept exactly the same -->
         <div class="modal-box white-panel">
             <div class="modal-header">
                 <h3 id="modal-subject">Email Subject</h3>

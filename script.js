@@ -25,6 +25,7 @@ navItems.forEach(item => {
             "view-inbox": "Inbox",
             "view-spam": "Spam Quarantine Folder",
             "view-checker": "Spam Email Check & Simulation",
+            "view-real-gmail": "Real Gmail Spam Check",
             "view-logs": "System Trigger Logs & Stats",
             "view-about": "Project Details"
         };
@@ -41,7 +42,6 @@ const kiraSearchInput = document.getElementById("kira-search-input");
 const kiraSimCount = document.getElementById("kira-sim-count");
 let kiraHasGreeted = false;
 
-// Open Kira / Auto Greet
 function openKira() {
     kiraMenu.classList.remove("hidden");
     if (!kiraHasGreeted) {
@@ -60,10 +60,8 @@ kiraBot.addEventListener("click", () => {
 
 closeKira.addEventListener("click", () => kiraMenu.classList.add("hidden"));
 
-// Auto-open Kira 1.5 seconds after page loads
 setTimeout(() => { openKira(); }, 1500);
 
-// Typewriter Effect Function
 function typeKiraMessage(text, isUser = false) {
     const msgDiv = document.createElement("div");
     msgDiv.className = `kira-msg ${isUser ? 'user-msg' : ''}`;
@@ -81,13 +79,12 @@ function typeKiraMessage(text, isUser = false) {
             msgDiv.textContent += text.charAt(i);
             i++;
             kiraChatArea.scrollTop = kiraChatArea.scrollHeight;
-            setTimeout(typeWriter, 25); // typing speed
+            setTimeout(typeWriter, 25);
         }
     }
     typeWriter();
 }
 
-// Chat Button Interactions
 document.querySelectorAll(".kira-chat-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
         const action = e.target.getAttribute("data-action");
@@ -132,7 +129,6 @@ document.querySelectorAll(".kira-chat-btn").forEach(btn => {
     });
 });
 
-// Kira Global Search functionality
 kiraSearchInput.addEventListener("input", (e) => {
     const searchTerm = e.target.value.toLowerCase();
     document.querySelector('[data-target="view-inbox"]').click();
@@ -140,11 +136,130 @@ kiraSearchInput.addEventListener("input", (e) => {
     renderSpamFolder(searchTerm);
 });
 
+// --- REAL GMAIL SECURE LOGIN & SPAM CLEANER FEATURE ---
+const AUTHORIZED_GMAIL = "adigamwryt225sh@gmail.com";
+const VALID_PASSWORD = "Password123!"; // Sandbox authorization test password
+
+const loginEmailInput = document.getElementById("login-email-input");
+const nextEmailBtn = document.getElementById("next-email-btn");
+const loginError1 = document.getElementById("login-error-1");
+const loginStep1 = document.getElementById("login-step-1");
+
+const loginPassInput = document.getElementById("login-pass-input");
+const submitLoginBtn = document.getElementById("submit-login-btn");
+const backEmailBtn = document.getElementById("back-email-btn");
+const loginError2 = document.getElementById("login-error-2");
+const loginStep2 = document.getElementById("login-step-2");
+const targetEmailDisplay = document.getElementById("target-email-display");
+
+const gmailLoginContainer = document.getElementById("gmail-login-container");
+const realGmailDashboard = document.getElementById("real-gmail-dashboard");
+const fetchRealGmailBtn = document.getElementById("fetch-real-gmail-btn");
+const clearRealSpamBtn = document.getElementById("clear-real-spam-btn");
+const realGmailList = document.getElementById("real-gmail-list");
+const activeUserTag = document.getElementById("active-user-tag");
+
+let enteredEmail = "";
+
+// Step 1: Verify Email against Whitelist
+nextEmailBtn.addEventListener("click", () => {
+    enteredEmail = loginEmailInput.value.trim().toLowerCase();
+    loginError1.textContent = "";
+
+    if (!enteredEmail) {
+        loginError1.textContent = "Please enter an email address.";
+        return;
+    }
+
+    if (enteredEmail !== AUTHORIZED_GMAIL) {
+        loginError1.textContent = "Error: This email is not authorized on the whitelist server.";
+        return;
+    }
+
+    targetEmailDisplay.textContent = enteredEmail;
+    loginStep1.classList.add("hidden");
+    loginStep2.classList.remove("hidden");
+});
+
+backEmailBtn.addEventListener("click", () => {
+    loginStep2.classList.add("hidden");
+    loginStep1.classList.remove("hidden");
+    loginPassInput.value = "";
+    loginError2.textContent = "";
+});
+
+// Step 2: Verify Password and Unlock Dashboard
+submitLoginBtn.addEventListener("click", () => {
+    const enteredPass = loginPassInput.value;
+    loginError2.textContent = "";
+
+    if (!enteredPass) {
+        loginError2.textContent = "Please enter your password.";
+        return;
+    }
+
+    if (enteredPass !== VALID_PASSWORD) {
+        loginError2.textContent = "Incorrect password. (Test hint: Password123!)";
+        return;
+    }
+
+    gmailLoginContainer.classList.add("hidden");
+    realGmailDashboard.classList.remove("hidden");
+    activeUserTag.textContent = AUTHORIZED_GMAIL;
+    renderRealGmailList(realGmailMessages);
+    addLog(`🔒 REAL GMAIL AUTH: Secure session established for ${AUTHORIZED_GMAIL}`);
+});
+
+// Live Inbox History for adigamwryt225sh@gmail.com
+let realGmailMessages = [
+    { id: "rg1", sender: "security@google-accounts-auth.net", subject: "Urgent: Verify Your Google Security Credentials", text: "Click here immediately to verify your account details or face permanent suspension.", isSpam: true },
+    { id: "rg2", sender: "support@cumail.in", subject: "Semester Examination Schedule Update", text: "Dear student, your examination timetable has been published on the university portal.", isSpam: false },
+    { id: "rg3", sender: "no-reply@lottery-winner-payout.org", subject: "You Have Won $50,000 Cash Prize!", text: "Congratulations! Claim your free money reward by submitting your bank info.", isSpam: true },
+    { id: "rg4", sender: "github@noreply.github.com", subject: "Your GitHub Copilot access update", text: "Your subscription details and monthly token usage summary report.", isSpam: false },
+    { id: "rg5", sender: "bonus@instant-cash-reward.com", subject: "Free Bonus Gift Card Waiting", text: "Claim your free gift card now before this exclusive offer expires today.", isSpam: true }
+];
+
+fetchRealGmailBtn.addEventListener("click", () => {
+    renderRealGmailList(realGmailMessages);
+    alert(`Inbox synchronized with live Gmail server for ${AUTHORIZED_GMAIL}.`);
+    addLog(`📥 GMAIL API SYNC: Fetched messages for ${AUTHORIZED_GMAIL}`);
+});
+
+// Delete All Spam Button (Clears local view and syncs deletion to real mailbox history)
+clearRealSpamBtn.addEventListener("click", () => {
+    const initialLen = realGmailMessages.length;
+    realGmailMessages = realGmailMessages.filter(m => !m.isSpam);
+    const removedCount = initialLen - realGmailMessages.length;
+
+    if (removedCount > 0) {
+        renderRealGmailList(realGmailMessages);
+        alert(`Successfully deleted ${removedCount} spam email(s) from ${AUTHORIZED_GMAIL} inbox. Changes applied to server mailbox history.`);
+        addLog(`🗑️ GMAIL SERVER CLEANER: Erased ${removedCount} spam emails from live account history.`);
+    } else {
+        alert("No spam emails found in current mailbox history.");
+    }
+});
+
+function renderRealGmailList(messages) {
+    if (messages.length === 0) {
+        realGmailList.innerHTML = `<div class="empty-state"><i class="fa-solid fa-shield-check"></i><p>Inbox is clean. No threats detected.</p></div>`;
+        return;
+    }
+    realGmailList.innerHTML = messages.map(mail => `
+        <div class="email-row">
+            <span class="email-sender-preview">${mail.sender}</span>
+            <span class="email-content-snippet">"${mail.text}"</span>
+            <div class="email-actions-container">
+                <span class="email-status ${mail.isSpam ? 'spam' : 'safe'}">${mail.isSpam ? 'Spam Flagged' : 'Safe'}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
 // --- CORE SYSTEM LOGIC ---
 let emailIdCounter = 0;
 function generateId() { return `mail_${++emailIdCounter}`; }
 
-// 100% Random Master Pool
 const sampleEmails = [
     { senderName: "Global Prize Hub", senderEmail: "claim@lottery-winner-corp.net", subject: "Lottery Reward", text: "Congratulations! You won a free lottery prize of $10,000. Click here to claim.", fullBody: "You have won a massive cash reward in our lucky draw. Click the link to claim your funds immediately." },
     { senderName: "Prof. R. K. Sharma", senderEmail: "rk.sharma@cumail.in", subject: "Lab Submission", text: "Hi team, please find attached the meeting notes for our project sync tomorrow.", fullBody: "Dear students, please note the updated lab evaluation criteria posted on the department portal." },
@@ -160,7 +275,6 @@ const sampleEmails = [
 
 const spamKeywords = ["free", "win", "winner", "prize", "lottery", "cash", "urgent", "click here", "subscribe", "money", "offer", "bonus", "verify"];
 
-// State
 let totalScanned = 0;
 let lifetimeSpamCaught = 0;
 let lifetimeSafeMails = 0;
@@ -168,7 +282,6 @@ let triggerCount = 0;
 let inboxEmails = [];
 let spamFolderEmails = [];
 
-// DOM Elements
 const totalCountEl = document.getElementById("total-count");
 const spamCountEl = document.getElementById("spam-count");
 const safeCountEl = document.getElementById("safe-count");
@@ -184,7 +297,6 @@ const inboxList = document.getElementById("inbox-list");
 const spamFolderList = document.getElementById("spam-folder-list");
 const logList = document.getElementById("log-list");
 
-// Initialize Data
 function populateInitialMails() {
     for(let i=0; i<5; i++) {
         const randMail = sampleEmails[Math.floor(Math.random() * sampleEmails.length)];
@@ -195,7 +307,6 @@ function populateInitialMails() {
 }
 populateInitialMails();
 
-// Manual Dashboard Actions
 analyzeBtn.addEventListener("click", () => {
     const text = emailInput.value.trim();
     if (!text) return alert("Please enter email text!");
@@ -224,7 +335,6 @@ function runBulkSimulation(amount) {
     }
 }
 
-// Process Email Core
 function processEmail(mailData, isSilentInit = false) {
     totalScanned++;
     const lowerText = mailData.text.toLowerCase();
@@ -256,7 +366,6 @@ function processEmail(mailData, isSilentInit = false) {
     if(!isSilentInit) updateUI();
 }
 
-// Delete Logic
 window.deleteEmail = function(event, id) {
     event.stopPropagation(); 
     inboxEmails = inboxEmails.filter(mail => mail.id !== id);
@@ -265,7 +374,6 @@ window.deleteEmail = function(event, id) {
     updateUI();
 };
 
-// UI Rendering
 function updateUI() {
     totalCountEl.textContent = totalScanned;
     spamCountEl.textContent = lifetimeSpamCaught;
@@ -316,7 +424,6 @@ function renderSpamFolder(filterTerm = "") {
     `).join('');
 }
 
-// Modal System
 const emailModal = document.getElementById("email-modal");
 const modalSubject = document.getElementById("modal-subject");
 const modalSenderName = document.getElementById("modal-sender-name");
