@@ -30,7 +30,26 @@ navItems.forEach(item => {
             "view-about": "Project Details"
         };
         pageTitle.textContent = titles[targetId];
+
+        // Trigger Developer Notice Popup when clicking Real Gmail Spam Check
+        if (targetId === "view-real-gmail") {
+            devNoticeModal.classList.add("active");
+        }
     });
+});
+
+// --- DEVELOPER NOTICE MODAL LOGIC ---
+const devNoticeModal = document.getElementById("dev-notice-modal");
+const closeNoticeX = document.getElementById("close-notice-x");
+const closeNoticeBtn = document.getElementById("close-notice-btn");
+
+function closeDevNotice() {
+    devNoticeModal.classList.remove("active");
+}
+closeNoticeX.addEventListener("click", closeDevNotice);
+closeNoticeBtn.addEventListener("click", closeDevNotice);
+devNoticeModal.addEventListener("click", (e) => {
+    if (e.target === devNoticeModal) closeDevNotice();
 });
 
 // --- KIRA A.I. CHAT LOGIC ---
@@ -161,7 +180,6 @@ const activeUserTag = document.getElementById("active-user-tag");
 
 let enteredEmail = "";
 
-// Step 1: Verify Email against Whitelist
 nextEmailBtn.addEventListener("click", () => {
     enteredEmail = loginEmailInput.value.trim().toLowerCase();
     loginError1.textContent = "";
@@ -188,7 +206,6 @@ backEmailBtn.addEventListener("click", () => {
     loginError2.textContent = "";
 });
 
-// Step 2: Verify Password and Unlock Dashboard
 submitLoginBtn.addEventListener("click", () => {
     const enteredPass = loginPassInput.value;
     loginError2.textContent = "";
@@ -210,7 +227,6 @@ submitLoginBtn.addEventListener("click", () => {
     addLog(`🔒 REAL GMAIL AUTH: Secure session established for ${AUTHORIZED_GMAIL}`);
 });
 
-// Live Inbox History for adigamwryt225sh@gmail.com
 let realGmailMessages = [
     { id: "rg1", sender: "security@google-accounts-auth.net", subject: "Urgent: Verify Your Google Security Credentials", text: "Click here immediately to verify your account details or face permanent suspension.", isSpam: true },
     { id: "rg2", sender: "support@cumail.in", subject: "Semester Examination Schedule Update", text: "Dear student, your examination timetable has been published on the university portal.", isSpam: false },
@@ -225,7 +241,6 @@ fetchRealGmailBtn.addEventListener("click", () => {
     addLog(`📥 GMAIL API SYNC: Fetched messages for ${AUTHORIZED_GMAIL}`);
 });
 
-// Delete All Spam Button (Clears local view and syncs deletion to real mailbox history)
 clearRealSpamBtn.addEventListener("click", () => {
     const initialLen = realGmailMessages.length;
     realGmailMessages = realGmailMessages.filter(m => !m.isSpam);

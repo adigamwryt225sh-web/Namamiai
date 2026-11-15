@@ -116,7 +116,7 @@ body { background-color: #3b2e26; background-image: radial-gradient(rgba(255, 25
 .kira-search i { color: #a89587; font-size: 0.9rem; }
 .kira-search input { border: none; background: transparent; outline: none; width: 100%; margin-left: 8px; font-size: 0.9rem; color: #2c221e;}
 
-/* Real Gmail Google-Style Login Box Styles */
+/* Real Gmail Google-Style Login Box & Notice Box Styles */
 .login-card-box { max-width: 420px; margin: 40px auto; padding: 40px !important; text-align: center; border: 1px solid #dcd2c1; background-color: #ffffff; border-radius: 12px; }
 .google-logo-icon { font-size: 2.5rem; color: #4285F4; margin-bottom: 12px; }
 .login-header h4 { font-size: 1.4rem; color: #2c221e; margin-bottom: 5px; font-weight: 700; }
@@ -137,6 +137,7 @@ body { background-color: #3b2e26; background-image: radial-gradient(rgba(255, 25
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(44, 34, 30, 0.6); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(4px); }
 .modal-overlay.active { display: flex; }
 .modal-box { width: 600px; max-width: 90%; padding: 30px; background-color: #ffffff; border-radius: 14px; }
+.notice-box-style { border-left: 5px solid #b45309; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f3eee3; padding-bottom: 12px; }
 .modal-header h3 { font-size: 1.25rem; color: #2c221e; font-weight: 700; }
 .close-x-btn { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: #786457; }
