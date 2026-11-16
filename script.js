@@ -346,7 +346,7 @@ function runBulkSimulation(amount) {
         setTimeout(() => {
             const randEmailObj = sampleEmails[Math.floor(Math.random() * sampleEmails.length)];
             processEmail(randEmailObj);
-        }, i * 80); 
+        }, i * 50); 
     }
 }
 
